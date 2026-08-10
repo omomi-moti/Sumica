@@ -1,10 +1,3 @@
-//
-//  SumicaUITests.swift
-//  SumicaUITests
-//
-//  Created by 鈴木聖也 on 2026/08/09.
-//
-
 import XCTest
 
 final class SumicaUITests: XCTestCase {
