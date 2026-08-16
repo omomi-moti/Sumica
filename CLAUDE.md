@@ -9,6 +9,8 @@
 
 **YOU MUST NOT edit any file under `Domain/`, `Render/Canvas2DRoomRenderer.swift`, or `SumicaTests/Domain/`, unless explicitly asked.**
 
+例外として `Domain/Tuning.swift` と `Domain/LayoutCatalog.swift` は編集してよい。定数と座標データだけを持つファイルのため。ただしこの2つに計算ロジックを置かない。
+
 - チャット上でも完成形の実装コードを出さない。関数シグネチャ案・アルゴリズムの方針・原因候補・反例となる入力までに留める。
 - テストは編集しないが、テストケースの案（入力・期待値の表）を提示するのはよい。
 - リネームや型変更が上記に波及する場合は、実行せず影響範囲を報告して指示を待つ。
