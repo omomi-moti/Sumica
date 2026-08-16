@@ -182,9 +182,10 @@ DIコンテナは小規模アプリに対して過剰で、配線に半日使う
 Domain を独立させるのは「層を切ること」自体が目的ではなく、§1 の設計判断から必然的に出てきたもの。SwiftUI にも SwiftData にも依存せず、副作用がなく（`Date()` すら呼ばない）、だからテストでき CI で高速に回る。
 
 ```
-Domain/                          // SwiftUI 非依存。唯一の硬いルール
+Domain/                          // SwiftUI / SwiftData 非依存。唯一の硬いルール
 ├─ Dirtiness.swift               // 汚れ度の計算と逆算
-├─ Area.swift / AreaKind.swift
+├─ AreaSnapshot.swift            // Domain が扱う区画の値型
+├─ AreaKind.swift
 ├─ LayoutCatalog.swift
 ├─ DustDistribution.swift        // 粒子の配置
 ├─ MopPath.swift                 // 蛇行パスの生成
@@ -193,6 +194,9 @@ Domain/                          // SwiftUI 非依存。唯一の硬いルール
 └─ Tuning.swift                  // 調整値
 
 Data/
+├─ Models/
+│  ├─ Room.swift                 // @Model
+│  └─ Area.swift                 // @Model。AreaSnapshot を返すプロパティを持つ
 ├─ RoomRepository.swift          // protocol
 ├─ SwiftDataRoomRepository.swift
 └─ InMemoryRoomRepository.swift
