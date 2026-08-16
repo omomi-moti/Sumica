@@ -10,7 +10,7 @@
 |---|---|
 | 実装 | **未着手**（`ContentView.swift` / `SumicaApp.swift` のみ） |
 | 整備済み | CI（build + test）、Swift 6 言語モード、ドキュメント一式 |
-| 決着済み | 実装をブロックする設計判断7件（下記「決着済みの設計判断」） |
+| 決着済み | 実装をブロックする設計判断12件（下記「決着済みの設計判断」） |
 
 環境整備と設計判断は完了しているが、アプリのコードは書かれていない。
 
@@ -122,6 +122,11 @@ RealityKit の素振り（箱を1つ置いて回すだけの実験プロジェ�
 | 5 | `dailyQuestion` の評価時刻 | `startOfDay` |
 | 6 | 通知 | 配列で返す。初期 3日分 |
 | 7 | `halfLife` 初期値 | 1.5 / 3.5 / 6 / 3.5 / 3.5 日 |
+| 8 | Domain が扱う型 | `Room` / `Area` は `Data/Models/` の `@Model`。Domain は値型の `AreaSnapshot` を受け取る |
+| 9 | 座標の数値型 | `Double`。表示名は永続化せず `AreaKind` の定数にする |
+| 10 | 区画の順序 | `AreaKind.allCases` の宣言順を正とする。`Dictionary` を直接回さない |
+| 11 | 設定値の保存先 | `UserDefaults`。SwiftData が持つのは部屋の状態だけ |
+| 12 | 表示クランプの適用箇所 | 描画層。`dirtiness()` は生値を返す |
 
 ---
 
@@ -137,3 +142,10 @@ RealityKit の素振り（箱を1つ置いて回すだけの実験プロジェ�
 | 4 | ダークモードの2色 | 作業単位6 |
 | 5 | `Tuning` の各値 | 1週間運用してから |
 | 6 | Bundle ID | 既存プロジェクトの設定を確認するだけ |
+| 7 | `partiallyCleaned` の `ratio` が時間軸か汚れ度か | `Dirtiness` を書くとき |
+| 8 | `PlannedNotification` が持つフィールド | `NotificationPlanner` を書くとき |
+| 9 | `plan` が通知時刻をどう受け取るか（`Domain/` は `Calendar` に非依存） | 同上 |
+| 10 | microTask を選ぶ関数と、日付で固定するか | 同上 |
+| 11 | `dailyQuestion` の戻り値 `text` が問いの文言か microTask か | `DailyQuestion` を書くとき |
+
+7〜11 はいずれも**書く前に決めれば手戻りが出ない**。該当する関数に着手する時点で決める。
