@@ -25,6 +25,31 @@ Area
 
 **永続化対象は `Room` と `Area` のみ。** 座標・汚れ速度・タスク文言は定数としてコードに持つ。
 
+### `Room` / `Area` は `Data/` 側に置く
+
+この2つは SwiftData の `@Model` として `Data/Models/` に置く。`Domain/` は SwiftData に依存しないため、**Domain の関数はこれらを受け取らない。**
+
+代わりに `Domain/` に値型のスナップショットを1つ置き、Domain の関数はその配列を受け取る。
+
+```swift
+struct AreaSnapshot: Identifiable {
+    let id: UUID
+    let kind: AreaKind
+    let lastVerifiedCleanAt: Date
+}
+```
+
+`halfLife` は持たせない。`kind` から `Tuning` を引けるため。`displayName` と `cleanedCount` も Domain の計算に使わないので持たせない。
+
+変換は `@Model` 側にプロパティを1つ生やして行う。Mapper 層は作らない。
+
+**なぜ `@Model` をそのまま渡さないか。**
+
+| | |
+|---|---|
+| 依存の向き | 渡すと `Domain` → SwiftData の依存が生まれる。`Data` → `Domain` の一方向に保つ |
+| 純粋関数の前提 | `@Model` は `class`。参照型を渡すと関数の実行中に中身が変わりうるため、「同じ入力なら同じ出力」が保証できない。値型のスナップショットなら固定される |
+
 `layoutType` は値が1つしかなくても今から入れる。フィールドを後から追加するとマイグレーションが必要になるのに対し、enum の case を足すのはコストゼロという非対称性を利用する。
 
 **`lastVerifiedCleanAt` という名前について。** 「最後に掃除した時刻」ではなく「最後に綺麗だと確認した時刻」。確認を第一の操作にした（[spec.md](spec.md) §2.2）結果、実際にやっていることはこちら。
@@ -195,7 +220,7 @@ static let myRoom = LayoutDefinition(
 
 ```swift
 /// 同じ日付なら常に同じ結果を返す
-func dailyQuestion(for room: Room, on startOfDay: Date) -> (Area.ID, String)
+func dailyQuestion(areas: [AreaSnapshot], on startOfDay: Date) -> (areaID: UUID, text: String)
 ```
 
 **「その日の 0:00 時点で最も汚れていた区画」と定義する。**
@@ -209,10 +234,12 @@ func dailyQuestion(for room: Room, on startOfDay: Date) -> (Area.ID, String)
 ## 7. 通知の計画
 
 ```swift
-func plan(room: Room, from now: Date, days: Int) -> [PlannedNotification]
+func plan(areas: [AreaSnapshot], createdAt: Date, from now: Date, days: Int) -> [PlannedNotification]
 ```
 
 **戻り値は配列。** 1件だけ返す設計だと、アプリを開かない限り次が積まれず通知が止まる（[spec.md](spec.md) §5.1）。
+
+`createdAt` は `Room` のものを別引数で渡す。最初の7日間の判定に使う。
 
 - 積む日数は `Tuning` の定数。初期値 **3**
 - 各日の朝8時時点の汚れ度を計算し、閾値 0.5 を超える区画のうち最も汚れているものを選ぶ
