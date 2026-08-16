@@ -142,3 +142,10 @@ RealityKit の素振り（箱を1つ置いて回すだけの実験プロジェ�
 | 4 | ダークモードの2色 | 作業単位6 |
 | 5 | `Tuning` の各値 | 1週間運用してから |
 | 6 | Bundle ID | 既存プロジェクトの設定を確認するだけ |
+| 7 | `partiallyCleaned` の `ratio` が時間軸か汚れ度か | `Dirtiness` を書くとき |
+| 8 | `PlannedNotification` が持つフィールド | `NotificationPlanner` を書くとき |
+| 9 | `plan` が通知時刻をどう受け取るか（`Domain/` は `Calendar` に非依存） | 同上 |
+| 10 | microTask を選ぶ関数と、日付で固定するか | 同上 |
+| 11 | `dailyQuestion` の戻り値 `text` が問いの文言か microTask か | `DailyQuestion` を書くとき |
+
+7〜11 はいずれも**書く前に決めれば手戻りが出ない**。該当する関数に着手する時点で決める。

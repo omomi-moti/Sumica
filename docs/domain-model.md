@@ -39,10 +39,15 @@ struct AreaSnapshot: Identifiable {
     let id: UUID
     let kind: AreaKind
     let lastVerifiedCleanAt: Date
+    let halfLife: TimeInterval   // ペースを掛けた後の実効値
 }
 ```
 
-`halfLife` は持たせない。`kind` から `Tuning` を引けるため。`cleanedCount` も Domain の計算に使わないので持たせない。
+**`halfLife` は実効値を詰める。** `Tuning` の区画別定数に、ユーザーが設定したペース（0.7 / 1.0 / 1.5）を掛けた後の値。
+
+`kind` から `Tuning` を引けば足りるように見えるが、ペースは `UserDefaults` にあり `Domain/` からは読めない。掛け算を変換プロパティ側で済ませておくことで、Domain の関数は `Tuning` も `UserDefaults` も参照せずに汚れ度を計算できる。
+
+`cleanedCount` は Domain の計算に使わないので持たせない。
 
 変換は `@Model` 側にプロパティを1つ生やして行う。Mapper 層は作らない。
 
