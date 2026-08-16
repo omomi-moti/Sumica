@@ -1,5 +1,5 @@
 import Foundation
-//区間をenumで定義
+//区画の種類
 enum AreaKind: String, CaseIterable {
     case desk
     case floor
