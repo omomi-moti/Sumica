@@ -16,7 +16,7 @@
 
 ## 前提環境
 
-- Swift 6.2（言語モードは 5）/ iOS 26.1 以上 / Xcode 26.1.1
+- Swift 6.2（言語モード 6）/ iOS 26.1 以上 / Xcode 26.1.1
 - テスト: `SumicaTests` は Swift Testing（`@Test` / `#expect`）、`SumicaUITests` は XCTest
 - 永続化: SwiftData。`@Model` は `Data/Models/` に置く
 
@@ -52,9 +52,18 @@ push 前にテストが通ること。GitHub Actions で同じテストが走る
 配置のルール:
 
 - **IMPORTANT: `Domain/` 内の関数は `Date()` を呼ばない。現在時刻は必ず引数で受け取る。** テストでも `Date()` ではなく固定日時を使う。
+- **IMPORTANT: `Domain/` は正規化座標（0.0〜1.0）だけを扱う。画面サイズを引数に取らない。** 実座標への変換は描画層の責務。
 - 汚れの計算・粒子の配置・モップの経路はすべて `Domain/` に置く。描画層に書かない。
+- 区画は**長方形のみ**。1部屋あたり最大5区画。最小タップ領域は 44pt 四方以上。
 
-設計の背景は [docs/architecture.md](docs/architecture.md) を参照。
+## ドキュメント
+
+- [docs/spec.md](docs/spec.md) — 何を作るか（背景・方針・画面・通知）
+- [docs/domain-model.md](docs/domain-model.md) — データと純粋関数の定義。実装と同期が要る
+- [docs/architecture.md](docs/architecture.md) — なぜそうするか（技術選定・層構成・テスト方針）
+- [docs/roadmap.md](docs/roadmap.md) — Phase と未決事項。最も早く古くなる
+
+仕様に関わる変更をしたら、対応するファイルも更新する。
 
 ## 制約
 
