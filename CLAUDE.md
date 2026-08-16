@@ -63,10 +63,10 @@ push 前にテストが通ること。GitHub Actions で同じテストが走る
 ## Git
 
 - Conventional Commits に従う（`feat:` `fix:` `refactor:` `test:` `docs:` `chore:` `ci:`）
-- コミットメッセージ・PR 本文・コード内コメント・識別子は英語。チャットの応答は日本語
+- コミットメッセージ・PR 本文・コード内コメント・チャットの応答は日本語。識別子は英語
 - ブランチを切って PR を作る。`main` に直接コミットしない
 - ブランチ名は prefix + kebab-case（例: `feat/dirtiness-calculation`）
-- commit は指示されたときだけ行う。`git push` と PR 作成は勝手にしない
+- git 操作（commit / push / branch / merge）と PR 操作は本人が行う。アシスタントは実行せずコマンドを提示する
 
 ## 迷ったとき
 
