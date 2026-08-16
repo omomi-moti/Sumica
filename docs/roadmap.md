@@ -10,7 +10,7 @@
 |---|---|
 | 実装 | **未着手**（`ContentView.swift` / `SumicaApp.swift` のみ） |
 | 整備済み | CI（build + test）、Swift 6 言語モード、ドキュメント一式 |
-| 決着済み | 実装をブロックする設計判断7件（下記「決着済みの設計判断」） |
+| 決着済み | 実装をブロックする設計判断12件（下記「決着済みの設計判断」） |
 
 環境整備と設計判断は完了しているが、アプリのコードは書かれていない。
 
@@ -122,6 +122,11 @@ RealityKit の素振り（箱を1つ置いて回すだけの実験プロジェ�
 | 5 | `dailyQuestion` の評価時刻 | `startOfDay` |
 | 6 | 通知 | 配列で返す。初期 3日分 |
 | 7 | `halfLife` 初期値 | 1.5 / 3.5 / 6 / 3.5 / 3.5 日 |
+| 8 | Domain が扱う型 | `Room` / `Area` は `Data/Models/` の `@Model`。Domain は値型の `AreaSnapshot` を受け取る |
+| 9 | 座標の数値型 | `Double`。表示名は永続化せず `AreaKind` の定数にする |
+| 10 | 区画の順序 | `AreaKind.allCases` の宣言順を正とする。`Dictionary` を直接回さない |
+| 11 | 設定値の保存先 | `UserDefaults`。SwiftData が持つのは部屋の状態だけ |
+| 12 | 表示クランプの適用箇所 | 描画層。`dirtiness()` は生値を返す |
 
 ---
 

@@ -47,7 +47,8 @@ Phase 2 で描画を 2D から 3D に差し替えたときに、計算部分を�
 | Xcode | **26.1.1** | |
 | UI | SwiftUI | 使う描画 API（`Canvas` / `TimelineView` / `RealityView` / `matchedGeometryEffect`）がいずれも SwiftUI 側にある。UIKit から使うにはラップが要る |
 | 状態管理 | `@Observable`（Observation） | §2.2 |
-| 永続化 | SwiftData | §2.3 |
+| 永続化（部屋の状態） | SwiftData | §2.3 |
+| 永続化（設定値） | `UserDefaults` | 通知のオン/オフ・時刻・ペースの3つ。関連も検索も要らない単一の値で、View から `@AppStorage` で直接読める。SwiftData に入れると `ModelContext` 経由になり、得るものが無い |
 | 2D描画 | `Canvas` + `TimelineView` | §2.4 |
 | 3D描画 | RealityKit（`RealityView`） | §3 |
 | 通知 | `UserNotifications`（ローカル） | 閾値到達時刻を逆算できるため、配信判断をサーバに置く必要がない（§1） |
@@ -92,6 +93,17 @@ Phase 2 の RealityKit が最も高い下限を要求する。ここが実質的
 副次的に `@Published` の付け忘れが構造的に起きなくなる（プロパティが素の `var` のままでよい）が、これは理由の主ではない。
 
 ### 2.3 永続化
+
+**保存先を2つに分ける。**
+
+| 対象 | 保存先 | 理由 |
+|---|---|---|
+| 部屋の状態（`Room` / `Area`） | SwiftData | 関連を持つ木構造。将来 確認履歴が増える余地がある |
+| 設定値（通知オン/オフ・時刻・ペース） | `UserDefaults` | 独立したスカラが3つ。関連も検索も要らない |
+
+分ける理由は、性質が違うものを同じ仕組みに載せると、片方に合わせた作りがもう片方の邪魔をするため。設定値を SwiftData に入れると、値を1つ読むために `ModelContext` が要る。逆に部屋の状態を `UserDefaults` に入れると、木構造を毎回まるごとエンコードすることになる。
+
+以下は SwiftData 側の話。
 
 保存するのは `Room` 1件と、それにぶら下がる `Area` 5件。木構造が1つあるだけで、実質 `Date` と `Int` が数個。
 
@@ -199,7 +211,8 @@ Data/
 │  └─ Area.swift                 // @Model。AreaSnapshot を返すプロパティを持つ
 ├─ RoomRepository.swift          // protocol
 ├─ SwiftDataRoomRepository.swift
-└─ InMemoryRoomRepository.swift
+├─ InMemoryRoomRepository.swift
+└─ SettingsStore.swift           // UserDefaults。通知の設定とペース
 
 Feature/
 ├─ Room/                         // メイン + ViewModel

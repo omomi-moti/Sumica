@@ -18,12 +18,15 @@ Room
 Area
 ├─ id: UUID
 ├─ kind: AreaKind
-├─ displayName: String
 ├─ lastVerifiedCleanAt: Date      // 「最後に綺麗だと確認した時刻」
 └─ cleanedCount: Int              // 累積。減らない。表示はしない
 ```
 
 **永続化対象は `Room` と `Area` のみ。** 座標・汚れ速度・タスク文言は定数としてコードに持つ。
+
+表示名も永続化しない。`AreaKind` ごとに固定で、改名する画面が無いため（[spec.md](spec.md) §4.3）。`AreaKind` の定数として持つ。
+
+**設定値はここに含めない。** 通知のオン/オフ・通知時刻・ペースは `UserDefaults` に置く（[architecture.md](architecture.md) §2.3）。SwiftData が持つのは部屋の状態だけ。
 
 ### `Room` / `Area` は `Data/` 側に置く
 
@@ -39,7 +42,7 @@ struct AreaSnapshot: Identifiable {
 }
 ```
 
-`halfLife` は持たせない。`kind` から `Tuning` を引けるため。`displayName` と `cleanedCount` も Domain の計算に使わないので持たせない。
+`halfLife` は持たせない。`kind` から `Tuning` を引けるため。`cleanedCount` も Domain の計算に使わないので持たせない。
 
 変換は `@Model` 側にプロパティを1つ生やして行う。Mapper 層は作らない。
 
@@ -93,9 +96,9 @@ func partiallyCleaned(lastVerifiedCleanAt: Date, now: Date, ratio: Double) -> Da
 
 ```swift
 struct AreaGeometry {
-    let x: ClosedRange<Float>   // 正規化座標 0.0-1.0
-    let y: ClosedRange<Float>
-    let height: Float           // 押し出し高さ。2D描画時は無視
+    let x: ClosedRange<Double>  // 正規化座標 0.0-1.0
+    let y: ClosedRange<Double>
+    let height: Double          // 押し出し高さ。2D描画時は無視
 }
 
 struct LayoutDefinition {
@@ -107,6 +110,10 @@ enum LayoutCatalog {
     static let all: [LayoutDefinition] = [.myRoom]
 }
 ```
+
+**区画の順序は `AreaKind.allCases` の宣言順を正とする。** `geometries` は `Dictionary` なので順序を持たない。そのまま回すと実行のたびに並びが変わり、オンボーディングの区画チップの順番が安定しない。**区画を列挙するときは必ず `allCases` を経由する。**
+
+数値型は `Double`。Phase 1 の描画先である `Canvas` が `CGFloat`（実体は `Double`）を扱うため、`Float` にすると描画のたびに変換が入る。Phase 2 で RealityKit に渡すときは `Float` への変換が要るが、それはメッシュ生成の1箇所に閉じる。
 
 ### 座標系
 
@@ -151,6 +158,10 @@ func dateWhenReaching(_ threshold: Double, from: Date, halfLife: TimeInterval) -
 | 部屋の色を決める | 0 〜 0.6（表示クランプ） |
 | 通知の閾値到達を逆算する | 閾値1点だけ |
 | 最も汚れた区画を選ぶ | 大小関係のみ |
+
+**クランプは `dirtiness()` の中で行わない。** 生の値を返し、`Tuning.dirtinessDisplayCap` は描画層が色を決めるときにだけ適用する。
+
+Domain 側で丸めると、放置が長い区画が複数あるときに**全部 0.6 で同着**になり、§6 の「最も汚れている区画を選ぶ」が機能しなくなる。名前のとおり表示用の上限であって、値そのものの上限ではない。
 
 `dateWhenReaching(1.0, ...)` は数学的に答えが存在しない。**閾値に 1.0 以上を渡すことは禁止する。**
 
@@ -280,9 +291,11 @@ enum Tuning {
     static let dirtinessDisplayCap = 0.6     // 表示上のクランプ
     static let notificationThreshold = 0.5   // 通知が飛ぶ汚れ度
     static let notificationDays = 3          // 何日分予約するか
-    static let paceMultiplier: Double = 1.0  // 設定の3択で 0.7 / 1.0 / 1.5
+    static let defaultPaceMultiplier = 1.0   // 設定の3択は 0.7 / 1.0 / 1.5
     // halfLife の区画別初期値もここ
 }
 ```
+
+**`Tuning` に入るのは定数だけ。** ペースはユーザーが変更する値なので、現在値は `UserDefaults` 側が持つ。`Tuning` が持つのは既定値と選択肢だけ。
 
 **具体値は机上で決めない。** 実際に自分の部屋で1週間動かして感覚が出てから調整する。今やるべきは値を決めることではなく、すぐ変えられる場所に置くこと。
