@@ -198,12 +198,13 @@ Domain/                          // SwiftUI / SwiftData 非依存。唯一の硬
 ├─ Dirtiness.swift               // 汚れ度の計算と逆算
 ├─ AreaSnapshot.swift            // Domain が扱う区画の値型
 ├─ AreaKind.swift
-├─ LayoutCatalog.swift
 ├─ DustDistribution.swift        // 粒子の配置
 ├─ MopPath.swift                 // 蛇行パスの生成
 ├─ DailyQuestion.swift           // その日の問いを決める
 ├─ NotificationPlanner.swift     // 区画 + 時刻 → 予約すべき通知の配列
-└─ Tuning.swift                  // 調整値
+└─ Constants/                    // 定数と座標データのみ。計算ロジックは置かない
+   ├─ LayoutCatalog.swift
+   └─ Tuning.swift
 
 Data/
 ├─ Models/
